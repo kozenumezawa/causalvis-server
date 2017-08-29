@@ -2,7 +2,7 @@
 
 import falcon
 
-from causalinference import CausalInference
+from causalapi import CausalInference
 
 class CORSMiddleware:
     def process_request(self, req, resp):
