@@ -13,11 +13,11 @@ class CausalInference(object):
 
         method = body['method']
         if method == 'GRANGER':
-            causal_matrix = self.create_granger_matrix(body['allTimeSeries'], body['width'])
+            causal_matrix = self.create_granger_matrix(body)
         elif method == 'CCM':
             print ('ccm')
         elif method == 'CROSS':
-            causal_matrix = self.create_cross_matrix(body['allTimeSeries'], body['width'])
+            causal_matrix = self.create_cross_matrix(body)
         else:
             causal_matrix = []
 
@@ -29,13 +29,17 @@ class CausalInference(object):
         resp.status = falcon.HTTP_200
 
     @staticmethod
-    def create_granger_matrix(all_time_series, width):
-        all_time_series = np.array(all_time_series, dtype=np.float)
+    def create_granger_matrix(body):
+        all_time_series = np.array(body['allTimeSeries'], dtype=np.float)
         causal_matrix = all_time_series.tolist()
         return causal_matrix
 
     @staticmethod
-    def create_cross_matrix(all_time_series, width):
-        all_time_series = np.array(all_time_series, dtype=np.float)
-        causal_matrix = allcrosscorr.calc_all(all_time_series, width)
+    def create_cross_matrix(body):
+        all_time_series = np.array(body['allTimeSeries'], dtype=np.float)
+        width = body['width']
+        max_lag = body['maxLag']
+        lag_step = body['lagStep']
+        mean_step = body['meanStep']
+        causal_matrix = allcrosscorr.calc_all(all_time_series, width, max_lag, lag_step, mean_step)
         return causal_matrix
