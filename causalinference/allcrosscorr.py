@@ -1,40 +1,43 @@
 # calculate causal direction using cross correlation from each point to every point
-def calc_all(allTimeSeries, width):
+def calc_all(all_time_series, width):
     import numpy as np
     import math
-    corrList = []
-    lag = 10
-    meanStep = 3
 
-    for (i, x) in enumerate(allTimeSeries):
-        if (sum(x) == 0 or (i % width) % meanStep != 1 or math.floor(i / width) % meanStep != 0):
-            corrList.append([])
+    corr_list = []
+    max_lag = 20
+    lag_step = 2
+    mean_step = 3
+
+    for (i, x) in enumerate(all_time_series):
+        if (sum(x) == 0 or (i % width) % mean_step != 1 or math.floor(i / width) % mean_step != 0):
+            corr_list.append([])
             continue
+        corr_list.append([0 for _ in range(len(all_time_series))])
 
-        corrList.append([0 for _ in range(len(allTimeSeries / meanStep / meanStep))])
-
-        back_x = x[lag:]
-        front_x = x[:len(x)-lag]
-        for (j, y) in enumerate(allTimeSeries):
-            if (sum(y) == 0  or (j % width) % meanStep != 1 or math.floor(j / width) % meanStep != 0):
-                corrList[i][j] = 0
+        for (j, y) in enumerate(all_time_series):
+            if (sum(y) == 0  or (j % width) % mean_step != 1 or math.floor(j / width) % mean_step != 0):
+                corr_list[i][j] = 0
                 continue
 
-            corr = np.corrcoef(x, y)[0][1]
-            if math.isnan(corr):
-                corrList[i][j] = 0
+            zero_lag_corr = np.corrcoef(x, y)[0][1]
+            if math.isnan(zero_lag_corr):
+                corr_list[i][j] = 0
                 continue
 
-            back_corr = np.corrcoef(back_x, y[:len(y)-lag])[0][1]
-            frontCorr = np.corrcoef(front_x, y[lag:])[0][1]
+            plus_lag_corr = []
+            minus_lag_corr = []
+            for lag in range(lag_step, max_lag, lag_step):
+                # if corr(x, y) > corr(x, y[lag:]): there is causality from x to y
+                plus_lag_corr.append(np.corrcoef(x[:len(x) - lag], y[lag:])[0][1])
+                minus_lag_corr.append(np.corrcoef(x[lag:], y[:len(y) - lag])[0][1])
 
-            each_corr = [back_corr, corr, frontCorr]
+            each_corr = [max(minus_lag_corr), zero_lag_corr, max(plus_lag_corr)]
             max_idx = each_corr.index(max(each_corr))
 
             if max_idx == 0:
-                corrList[i][j] = 0
+                corr_list[i][j] = 0
             elif max_idx == 1:
-                corrList[i][j] = 0
+                corr_list[i][j] = 0
             else:
-                corrList[i][j] = frontCorr
-    return corrList
+                corr_list[i][j] = max(each_corr)
+    return corr_list
