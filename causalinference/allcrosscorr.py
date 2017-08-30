@@ -7,14 +7,14 @@ def calc_all(all_time_series, width, max_lag, lag_step, mean_step):
     corr_list = []
 
     for (row_idx, x) in enumerate(all_time_series):
-        print(row_idx)
-        if (sum(x) == 0 or (row_idx % width) % mean_step != 1 or math.floor(row_idx / width) % mean_step != 0):
+        if sum(x) == 0 or is_sampling_point(row_idx, width, mean_step) == False:
             corr_list.append([])
             continue
+
         corr_list.append([0 for _ in range(len(all_time_series))])
 
         for (col_idx, y) in enumerate(all_time_series):
-            if (sum(y) == 0  or (col_idx % width) % mean_step != 1 or math.floor(col_idx / width) % mean_step != 0):
+            if sum(y) == 0 or is_sampling_point(col_idx, width, mean_step) == False:
                 corr_list[row_idx][col_idx] = 0
                 continue
 
@@ -48,3 +48,11 @@ def calc_all(all_time_series, width, max_lag, lag_step, mean_step):
     f.close()
 
     return corr_list
+
+def is_sampling_point(idx, width, mean_step):
+    import math
+    x = idx % width
+    y = math.floor(idx / width)
+    if x % mean_step == 1 and y % mean_step == 0:
+        return True
+    return False
