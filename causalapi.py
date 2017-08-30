@@ -17,10 +17,10 @@ class CausalInference(object):
         elif method == 'CCM':
             print ('ccm')
         elif method == 'CROSS':
-            # causal_matrix = self.create_cross_matrix(body)
-            f = open("./data/causalmatrix", "r")
-            json_data = json.load(f)
-            causal_matrix = json_data["causalMatrix"]
+            causal_matrix = self.create_cross_matrix(body)
+            # f = open("./data/causalmatrix", "r")
+            # json_data = json.load(f)
+            # causal_matrix = json_data["causalMatrix"]
         else:
             causal_matrix = []
 
@@ -40,9 +40,7 @@ class CausalInference(object):
     @staticmethod
     def create_cross_matrix(body):
         all_time_series = np.array(body['allTimeSeries'], dtype=np.float)
-        width = body['width']
         max_lag = body['maxLag']
         lag_step = body['lagStep']
-        mean_step = body['meanStep']
-        causal_matrix = allcrosscorr.calc_all(all_time_series, width, max_lag, lag_step, mean_step)
+        causal_matrix = allcrosscorr.calc_all(all_time_series,  max_lag, lag_step)
         return causal_matrix

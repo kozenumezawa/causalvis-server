@@ -1,5 +1,5 @@
 # calculate causal direction using cross correlation from each point to every point
-def calc_all(all_time_series, width, max_lag, lag_step, mean_step):
+def calc_all(all_time_series, max_lag, lag_step):
     import numpy as np
     import math
     import json
@@ -7,17 +7,9 @@ def calc_all(all_time_series, width, max_lag, lag_step, mean_step):
     corr_list = []
 
     for (row_idx, x) in enumerate(all_time_series):
-        if sum(x) == 0 or is_sampling_point(row_idx, width, mean_step) == False:
-            corr_list.append([])
-            continue
-
         corr_list.append([0 for _ in range(len(all_time_series))])
 
         for (col_idx, y) in enumerate(all_time_series):
-            if sum(y) == 0 or is_sampling_point(col_idx, width, mean_step) == False:
-                corr_list[row_idx][col_idx] = 0
-                continue
-
             zero_lag_corr = np.corrcoef(x, y)[0][1]
             if math.isnan(zero_lag_corr):
                 corr_list[row_idx][col_idx] = 0
