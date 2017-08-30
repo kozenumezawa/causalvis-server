@@ -12,11 +12,11 @@ class CausalInference(object):
 
         method = body['method']
         if method == 'GRANGER':
-            causalMatrix = self.create_granger_matrix(body['allTimeSeries'])
+            causalMatrix = self.create_granger_matrix(body['allTimeSeries'], body['width'])
         elif method == 'CCM':
             print ('ccm')
         elif method == 'CROSS':
-            causalMatrix = self.create_cross_matrix(body['allTimeSeries'])
+            causalMatrix = self.create_cross_matrix(body['allTimeSeries'], body['width'])
 
         responseMsg = {
             'causalMatrix': causalMatrix
@@ -24,13 +24,12 @@ class CausalInference(object):
         resp.body = json.dumps(responseMsg)
         resp.status = falcon.HTTP_200
 
-    def create_granger_matrix(self, allTimeSeries):
+    def create_granger_matrix(self, allTimeSeries, width):
         allTimeSeries = np.array(allTimeSeries, dtype=np.float)
         causalMatrix = allTimeSeries.tolist()
         return causalMatrix
 
-    def create_cross_matrix(self, allTimeSeries):
+    def create_cross_matrix(self, allTimeSeries, width):
         allTimeSeries = np.array(allTimeSeries, dtype=np.float)
-        test = allcrosscorr.calc_all(allTimeSeries)
-        causalMatrix = test.tolist()
+        causalMatrix = allcrosscorr.calc_all(allTimeSeries, width)
         return causalMatrix
