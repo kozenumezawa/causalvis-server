@@ -17,10 +17,10 @@ class CausalInference(object):
         elif method == 'CCM':
             print ('ccm')
         elif method == 'CROSS':
-            causal_matrix = self.create_cross_matrix(body)
-            # f = open("./data/causalmatrix", "r")
-            # json_data = json.load(f)
-            # causal_matrix = json_data["causalMatrix"]
+            # causal_matrix = self.create_cross_matrix(body)
+            f = open("./data/causalmatrix", "r")
+            json_data = json.load(f)
+            causal_matrix = json_data["causalMatrix"]
         else:
             causal_matrix = []
 
