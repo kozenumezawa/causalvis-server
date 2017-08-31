@@ -4,7 +4,7 @@ import json
 import falcon
 import numpy as np
 
-from causalinference import allcrosscorr
+from clustering import irm
 
 
 class Clustering(object):
@@ -14,7 +14,7 @@ class Clustering(object):
         method = body['method']
 
         if method == 'IRM':
-            cluster_matrix = self.infinite_relational_modeling(body)
+            cluster_matrix = self.infinite_relational_model(body)
         else:
             cluster_matrix = []
 
@@ -25,6 +25,7 @@ class Clustering(object):
         resp.status = falcon.HTTP_200
 
     @staticmethod
-    def infinite_relational_modeling(body):
+    def infinite_relational_model(body):
         causal_matrix = np.array(body['causalMatrix'], dtype=np.float)
-        return causal_matrix.tolist()
+        cluster_matrix = irm.infinite_relational_model(causal_matrix, body['threshold'])
+        return cluster_matrix
