@@ -28,5 +28,5 @@ class Clustering(object):
     @staticmethod
     def infinite_relational_model(body):
         causal_matrix = np.array(body['causalMatrix'], dtype=np.float)
-        response_msg = irm.infinite_relational_model(causal_matrix, body['threshold'])
+        response_msg = irm.infinite_relational_model(causal_matrix, body['threshold'], body['sampledCoords'])
         return response_msg

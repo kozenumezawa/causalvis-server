@@ -1,4 +1,4 @@
-def infinite_relational_model(causal_matrix, threshold):
+def infinite_relational_model(causal_matrix, threshold, sampledCoords):
     import numpy as np
     import math
     import json
@@ -55,10 +55,14 @@ def infinite_relational_model(causal_matrix, threshold):
     z = z[ordering]
     z = z[:,ordering]
 
+    clusterSampledCoords = np.array(sampledCoords)
+    clusterSampledCoords = clusterSampledCoords[ordering]
+
     response_msg = {
         'clusterMatrix': z.tolist(),
-        "nClusterList": [len(cluster) for cluster in clusters],
-        "ordering": ordering,
+        'clusterSampledCoords': clusterSampledCoords.tolist(),
+        'nClusterList': [len(cluster) for cluster in clusters],
+        'ordering': ordering,
     }
     f = open("./data/clustermatrix", "w")
     json.dump(response_msg, f)
