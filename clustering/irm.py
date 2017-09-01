@@ -54,16 +54,14 @@ def infinite_relational_model(causal_matrix, threshold):
     z = graph.copy()
     z = z[ordering]
     z = z[:,ordering]
-    sizes = map(len, clusters)
 
-
-    saveJSON = {
+    response_msg = {
         'clusterMatrix': z.tolist(),
         "nClusterList": [len(cluster) for cluster in clusters],
         "ordering": ordering,
     }
     f = open("./data/clustermatrix", "w")
-    json.dump(saveJSON, f)
+    json.dump(response_msg, f)
     f.close()
 
-    return z.tolist()
+    return response_msg

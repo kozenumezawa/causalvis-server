@@ -14,18 +14,19 @@ class Clustering(object):
         method = body['method']
 
         if method == 'IRM':
-            cluster_matrix = self.infinite_relational_model(body)
+            # response_msg = self.infinite_relational_model(body)
+            f = open("./data/clustermatrix", "r")
+            response_msg = json.load(f)
         else:
-            cluster_matrix = []
+            response_msg = {
+                'clusterMatrix': []
+            }
 
-        response_msg = {
-            'clusterMatrix': cluster_matrix
-        }
         resp.body = json.dumps(response_msg)
         resp.status = falcon.HTTP_200
 
     @staticmethod
     def infinite_relational_model(body):
         causal_matrix = np.array(body['causalMatrix'], dtype=np.float)
-        cluster_matrix = irm.infinite_relational_model(causal_matrix, body['threshold'])
-        return cluster_matrix
+        response_msg = irm.infinite_relational_model(causal_matrix, body['threshold'])
+        return response_msg
