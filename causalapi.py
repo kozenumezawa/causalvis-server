@@ -19,11 +19,15 @@ class CausalInference(object):
         elif method == 'CCM':
             print ('ccm')
         elif method == 'CROSS':
-            if data_name == 'real' or data_name == 'sim':
+            if data_name == 'real':
                 f = open("./data/causalmatrix-" + data_name, "r")
                 json_data = json.load(f)
                 causal_matrix = json_data["causalMatrix"]
-
+            elif data_name == 'sim':
+                f = open("./data/causalmatrix-" + data_name, "r")
+                json_data = json.load(f)
+                causal_matrix = json_data["causalMatrix"]
+                # causal_matrix = self.create_cross_matrix(body)
             else:
                 # causal_matrix = self.create_cross_matrix(body)
                 causal_matrix = []

@@ -15,9 +15,13 @@ class Clustering(object):
         data_name = body['dataName']
 
         if method == 'IRM':
-            if data_name == 'real' or data_name == 'sim':
+            if data_name == 'real':
                 f = open("./data/clustermatrix-" + data_name, "r")
                 response_msg = json.load(f)
+            elif data_name == 'sim':
+                f = open("./data/clustermatrix-" + data_name, "r")
+                response_msg = json.load(f)
+                # response_msg = self.infinite_relational_model(body)
             else:
                 response_msg = self.infinite_relational_model(body)
 
