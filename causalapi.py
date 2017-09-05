@@ -12,15 +12,21 @@ class CausalInference(object):
         body = json.loads(req.stream.read().decode('utf-8'))
 
         method = body['method']
+        data_name = body['dataName']
+
         if method == 'GRANGER':
             causal_matrix = self.create_granger_matrix(body)
         elif method == 'CCM':
             print ('ccm')
         elif method == 'CROSS':
-            # causal_matrix = self.create_cross_matrix(body)
-            f = open("./data/causalmatrix", "r")
-            json_data = json.load(f)
-            causal_matrix = json_data["causalMatrix"]
+            if data_name == 'real' or data_name == 'sim':
+                f = open("./data/causalmatrix-" + data_name, "r")
+                json_data = json.load(f)
+                causal_matrix = json_data["causalMatrix"]
+
+            else:
+                # causal_matrix = self.create_cross_matrix(body)
+                causal_matrix = []
         else:
             causal_matrix = []
 
@@ -42,5 +48,7 @@ class CausalInference(object):
         all_time_series = np.array(body['allTimeSeries'], dtype=np.float)
         max_lag = body['maxLag']
         lag_step = body['lagStep']
-        causal_matrix = allcrosscorr.calc_all(all_time_series,  max_lag, lag_step)
+        data_name = body['dataName']
+
+        causal_matrix = allcrosscorr.calc_all(all_time_series,  max_lag, lag_step, data_name)
         return causal_matrix
