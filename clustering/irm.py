@@ -45,7 +45,7 @@ def infinite_relational_model(causal_matrix, threshold, sampled_coords, data_nam
     start = time.time()
     # r.run(r=prng, niters=1000)
     r.run(r=prng, niters=100)
-    print "inference took {} seconds".format(time.time() - start)
+    print ("inference took", time.time() - start ,"seconds")
 
     infers = r.get_latents()
     clusters = groups(infers[0].assignments(0), sort=True)
