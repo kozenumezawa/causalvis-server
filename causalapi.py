@@ -5,7 +5,9 @@ import falcon
 import numpy as np
 
 from causalinference import allcrosscorr
-
+from constants import DATA_SIM
+from constants import DATA_WILD
+from constants import DATA_TRP3
 
 class CausalInference(object):
     def on_post(self, req, resp):
@@ -19,12 +21,12 @@ class CausalInference(object):
         elif method == 'CCM':
             print ('ccm')
         elif method == 'CROSS':
-            if data_name == 'real':
-                f = open("./data/causalmatrix-" + data_name, "r")
+            if data_name == DATA_TRP3:
+                f = open("./data/causalmatrix-real", "r")
                 json_data = json.load(f)
                 causal_matrix = json_data["causalMatrix"]
-            elif data_name == 'sim':
-                f = open("./data/causalmatrix-" + data_name, "r")
+            elif data_name == DATA_SIM:
+                f = open("./data/causalmatrix-sim", "r")
                 json_data = json.load(f)
                 causal_matrix = json_data["causalMatrix"]
                 # causal_matrix = self.create_cross_matrix(body)

@@ -5,7 +5,9 @@ import falcon
 import numpy as np
 
 from clustering import irm
-
+from constants import DATA_SIM
+from constants import DATA_WILD
+from constants import DATA_TRP3
 
 class Clustering(object):
     def on_post(self, req, resp):
@@ -15,11 +17,11 @@ class Clustering(object):
         data_name = body['dataName']
 
         if method == 'IRM':
-            if data_name == 'real':
-                f = open("./data/clustermatrix-" + data_name, "r")
+            if data_name == DATA_TRP3:
+                f = open("./data/clustermatrix-real", "r")
                 response_msg = json.load(f)
-            elif data_name == 'sim':
-                f = open("./data/clustermatrix-" + data_name, "r")
+            elif data_name == DATA_SIM:
+                f = open("./data/clustermatrix-sim", "r")
                 response_msg = json.load(f)
                 # response_msg = self.infinite_relational_model(body)
             else:
