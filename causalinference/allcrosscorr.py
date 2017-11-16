@@ -1,5 +1,5 @@
 # calculate causal direction using cross correlation from each point to every point
-def calc_all(all_time_series, max_lag, lag_step, data_name):
+def calc_all(all_time_series, max_lag, lag_step, data_name, window_size):
     import numpy as np
     import math
     import json
@@ -35,7 +35,8 @@ def calc_all(all_time_series, max_lag, lag_step, data_name):
     saveJSON = {
         'causalMatrix': corr_list
     }
-    f = open("./data/causalmatrix-" + data_name, "w")
+
+    f = open("./data/causalmatrix-" + data_name + '-' + str(window_size), "w")
     json.dump(saveJSON, f)
     f.close()
 

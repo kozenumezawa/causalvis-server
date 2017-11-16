@@ -1,4 +1,4 @@
-def infinite_relational_model(causal_matrix, threshold, sampled_coords, data_name):
+def infinite_relational_model(causal_matrix, threshold, sampled_coords, data_name, window_size):
     import numpy as np
     import math
     import json
@@ -44,7 +44,8 @@ def infinite_relational_model(causal_matrix, threshold, sampled_coords, data_nam
 
     start = time.time()
     # r.run(r=prng, niters=1000)
-    r.run(r=prng, niters=100)
+    # r.run(r=prng, niters=100)
+    r.run(r=prng, niters=20)
     print ("inference took", time.time() - start ,"seconds")
 
     infers = r.get_latents()
@@ -64,7 +65,7 @@ def infinite_relational_model(causal_matrix, threshold, sampled_coords, data_nam
         'nClusterList': [len(cluster) for cluster in clusters],
         'ordering': ordering,
     }
-    f = open("./data/clustermatrix-" + data_name, "w")
+    f = open("./data/clustermatrix-" + data_name + '-' + str(window_size), "w")
     json.dump(response_msg, f)
     f.close()
 
