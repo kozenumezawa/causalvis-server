@@ -37,6 +37,7 @@ class Clustering(object):
                 # response_msg = self.infinite_relational_model(body)
             else:
                 response_msg = self.infinite_relational_model(body)
+            response_msg = self.sort(response_msg)
 
         else:
             response_msg = {
@@ -56,3 +57,56 @@ class Clustering(object):
 
         response_msg = irm.infinite_relational_model(causal_matrix, threshold, sampled_coords, data_name, window_size)
         return response_msg
+
+    @staticmethod
+    def sort(json_data):
+        cluster_matrix = np.array(json_data['clusterMatrix'])
+        cluster_sampled_coords = np.array(json_data['clusterSampledCoords'])
+        n_cluster_list = np.array(json_data['nClusterList'])
+        ordering = np.array(json_data['ordering'])
+
+        cluster_range_list = []
+        end_idx = 0
+        for n_cluster in n_cluster_list:
+            start_idx = end_idx
+            end_idx = start_idx + n_cluster
+            cluster_range_list.append({
+                'start': start_idx,
+                'end': end_idx
+            })
+
+        adjacency_matrix = []
+        for causal_cluster_range in cluster_range_list:
+            height = causal_cluster_range['end'] - causal_cluster_range['start']
+            row = []
+            for effect_cluster_range in cluster_range_list:
+                if causal_cluster_range
+
+
+
+#         const adjacencyMatrix = clusterRangeList.map((causalClusterRange) => {
+#             const height = causalClusterRange.end - causalClusterRange.start;
+#         return clusterRangeList.map((effectClusterRange) => {
+#         if (causalClusterRange === effectClusterRange) {
+#         return false;
+#         }
+#         // count the number of connections between two clusters
+#         let causalCnt = 0;
+#         for (let causalIdx = causalClusterRange.start; causalIdx < causalClusterRange.end; causalIdx += 1) {
+#         for (let effectIdx = effectClusterRange.start; effectIdx < effectClusterRange.end; effectIdx += 1) {
+#         if (clusterMatrices[dataIdx][causalIdx][effectIdx] === true) {
+#         causalCnt += 1;
+#         }
+#         }
+#     }
+#     const width = effectClusterRange.end - effectClusterRange.start;
+#     const area = width * height;
+#     if (causalCnt > area * 0.9) {
+#     return true;
+# }
+# return false;
+# });
+# });
+#
+#
+        return json_data
