@@ -96,4 +96,38 @@ class Clustering(object):
                     continue
                 row.append(False)
             adjacency_matrix.append(row)
-        return json_data
+
+        # count the number of source and target
+        n_sources = [row.count(True) for row in adjacency_matrix]
+        adjacency_matrix_T = map(list, zip(*adjacency_matrix))
+        n_targets = [col.count(True) for col in adjacency_matrix_T]
+
+        # calculate difference between nTargets and nSources
+        n_diffs = [n_source - n_target for (n_source, n_target) in zip(n_sources, n_targets)]
+        n_diffs = np.array(n_diffs)
+
+        cluster_order = n_diffs.argsort()
+        cluster_order = cluster_order[::-1]
+
+        # get new index after sorting
+        new_order = []
+        for (new_cluster_idx, old_cluster_idx) in enumerate(cluster_order):
+            start = cluster_range_list[old_cluster_idx]['start']
+            end = cluster_range_list[old_cluster_idx]['end']
+            for new_idx in range(start, end):
+                new_order.append(new_idx)
+
+        # update the order of matrix according to the sorting result
+        cluster_matrix = cluster_matrix[new_order]
+        cluster_matrix = cluster_matrix[:, new_order]
+        cluster_sampled_coords = cluster_sampled_coords[new_order]
+        ordering = ordering[new_order]
+        n_cluster_list = n_cluster_list[cluster_order]
+
+        response_msg = {
+            'clusterMatrix': cluster_matrix.tolist(),
+            'clusterSampledCoords': cluster_sampled_coords.tolist(),
+            'nClusterList': n_cluster_list.tolist(),
+            'ordering': ordering.tolist(),
+        }
+        return response_msg
