@@ -80,33 +80,20 @@ class Clustering(object):
             height = causal_cluster_range['end'] - causal_cluster_range['start']
             row = []
             for effect_cluster_range in cluster_range_list:
-                if causal_cluster_range
-
-
-
-#         const adjacencyMatrix = clusterRangeList.map((causalClusterRange) => {
-#             const height = causalClusterRange.end - causalClusterRange.start;
-#         return clusterRangeList.map((effectClusterRange) => {
-#         if (causalClusterRange === effectClusterRange) {
-#         return false;
-#         }
-#         // count the number of connections between two clusters
-#         let causalCnt = 0;
-#         for (let causalIdx = causalClusterRange.start; causalIdx < causalClusterRange.end; causalIdx += 1) {
-#         for (let effectIdx = effectClusterRange.start; effectIdx < effectClusterRange.end; effectIdx += 1) {
-#         if (clusterMatrices[dataIdx][causalIdx][effectIdx] === true) {
-#         causalCnt += 1;
-#         }
-#         }
-#     }
-#     const width = effectClusterRange.end - effectClusterRange.start;
-#     const area = width * height;
-#     if (causalCnt > area * 0.9) {
-#     return true;
-# }
-# return false;
-# });
-# });
-#
-#
+                if effect_cluster_range == causal_cluster_range:
+                    row.append(False)
+                    continue
+                # count the number of connections between two clusters
+                causal_cnt = 0
+                for causal_idx in range(causal_cluster_range['start'], causal_cluster_range['end']):
+                    for effect_idx in range(effect_cluster_range['start'], effect_cluster_range['end']):
+                        if cluster_matrix[causal_idx][effect_idx] == True:
+                            causal_cnt += 1
+                width = effect_cluster_range['end'] - effect_cluster_range['start']
+                area = width * height
+                if causal_cnt > area * 0.9:
+                    row.append(True)
+                    continue
+                row.append(False)
+            adjacency_matrix.append(row)
         return json_data
