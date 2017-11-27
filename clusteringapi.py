@@ -87,7 +87,7 @@ class Clustering(object):
                 causal_cnt = 0
                 for causal_idx in range(causal_cluster_range['start'], causal_cluster_range['end']):
                     for effect_idx in range(effect_cluster_range['start'], effect_cluster_range['end']):
-                        if cluster_matrix[causal_idx][effect_idx] == True:
+                        if cluster_matrix[causal_idx][effect_idx] is True:
                             causal_cnt += 1
                 width = effect_cluster_range['end'] - effect_cluster_range['start']
                 area = width * height
