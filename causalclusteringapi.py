@@ -21,36 +21,36 @@ class CausalClustering(object):
         data_name = body['dataName']
 
         if causal_method == 'GRANGER':
-            causal_matrix = self.create_granger_matrix(body)
+            corr_list = self.create_granger_matrix(body)
         elif causal_method == 'CCM':
             print ('ccm')
         elif causal_method == 'CROSS':
             window_size = body["windowSize"]
             if data_name == DATA_TRP3:
                 if window_size == 3 or window_size == 5 or window_size == 7:
-                    f = open("./data/causalmatrix-" + data_name + '-' + str(window_size), "r")
-                    json_data = json.load(f)
-                    causal_matrix = json_data["causalMatrix"]
+                    f = open("./data/corr_list-" + data_name + '-' + str(window_size), "r")
+                    corr_list = json.load(f)
+                    f = open("./data/lag_list-" + data_name + '-' + str(window_size), "r")
+                    lag_list = json.load(f)
                 else:
-                    causal_matrix = self.create_cross_matrix(body)
+                    corr_list, lag_list = self.create_cross_matrix(body)
             elif data_name == DATA_SIM:
-                f = open("./data/causalmatrix-sim", "r")
-                json_data = json.load(f)
-                causal_matrix = json_data["causalMatrix"]
+                f = open("./data/corr_list-" + data_name + '-3', "r")
+                corr_list = json.load(f)
+                f = open("./data/lag_list-" + data_name + '-3', "r")
+                lag_list = json.load(f)
             elif data_name == DATA_WILD:
-                f = open("./data/causalmatrix-data_wild", "r")
-                json_data = json.load(f)
-                causal_matrix = json_data["causalMatrix"]
+                corr_list, lag_list = self.create_cross_matrix(body)
             elif data_name == DATA_TRP3_RAW:
-                f = open("./data/causalmatrix-data_trp3_raw", "r")
-                json_data = json.load(f)
-                causal_matrix = json_data["causalMatrix"]
-                # causal_matrix = self.create_cross_matrix(body)
+                corr_list, lag_list = self.create_cross_matrix(body)
             else:
-                # causal_matrix = self.create_cross_matrix(body)
-                causal_matrix = []
+                corr_list, lag_list = self.create_cross_matrix(body)
         else:
-            causal_matrix = []
+            corr_list = []
+
+        corr_matrix = corr_list
+        lag_matrix = lag_list
+
 
         # conduct clustering
         clustering_method = body['clusteringMethod']
@@ -63,19 +63,16 @@ class CausalClustering(object):
                     f = open("./data/clustermatrix-" + data_name + '-' + str(window_size), "r")
                     response_msg = json.load(f)
                 else:
-                    response_msg = self.infinite_relational_model(body)
+                    response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
             elif data_name == DATA_SIM:
-                f = open("./data/clustermatrix-sim", "r")
+                f = open("./data/clustermatrix-data_sim-3", "r")
                 response_msg = json.load(f)
             elif data_name == DATA_WILD:
-                f = open("./data/clustermatrix-data_wild", "r")
-                response_msg = json.load(f)
+                response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
             elif data_name == DATA_TRP3_RAW:
-                f = open("./data/clustermatrix-data_trp3_raw", "r")
-                response_msg = json.load(f)
-                # response_msg = self.infinite_relational_model(body, causal_matrix)
+                response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
             else:
-                response_msg = self.infinite_relational_model(body, causal_matrix)
+                response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
             response_msg = self.sort(response_msg)
 
         else:
@@ -83,7 +80,6 @@ class CausalClustering(object):
                 'clusterMatrix': [],
             }
 
-        response_msg['causalMatrix'] = causal_matrix
         resp.body = json.dumps(response_msg)
         resp.status = falcon.HTTP_200
 
@@ -101,23 +97,26 @@ class CausalClustering(object):
         data_name = body['dataName']
         window_size = body['windowSize']
 
-        causal_matrix = allcrosscorr.calc_all(all_time_series,  max_lag, lag_step, data_name, window_size)
-        return causal_matrix
+        corr_list, lag_list = allcrosscorr.calc_all(all_time_series,  max_lag, lag_step, data_name, window_size)
+        return (corr_list, lag_list)
 
 
     @staticmethod
-    def infinite_relational_model(body, causal_matrix):
-        causal_matrix = np.array(causal_matrix, dtype=np.float)
+    def infinite_relational_model(body, corr_matrix, lag_matrix):
+        corr_matrix = np.array(corr_matrix, dtype=np.float)
+        lag_matrix = np.array(lag_matrix, dtype=np.float)
         threshold = body['threshold']
         sampled_coords = body['sampledCoords']
         data_name = body['dataName']
         window_size = body['windowSize']
 
-        response_msg = irm.infinite_relational_model(causal_matrix, threshold, sampled_coords, data_name, window_size)
+        response_msg = irm.infinite_relational_model(corr_matrix, lag_matrix, threshold, sampled_coords, data_name, window_size)
         return response_msg
 
     @staticmethod
     def sort(json_data):
+        corr_matrix = np.array(json_data['corrMatrix'])
+        lag_matrix = np.array(json_data['lagMatrix'])
         cluster_matrix = np.array(json_data['clusterMatrix'])
         cluster_sampled_coords = np.array(json_data['clusterSampledCoords'])
         n_cluster_list = np.array(json_data['nClusterList'])
@@ -176,6 +175,13 @@ class CausalClustering(object):
                 new_order.append(new_idx)
 
         # update the order of matrix according to the sorting result
+        corr_matrix = corr_matrix[new_order]
+        corr_matrix = corr_matrix[:, new_order]
+
+        lag_matrix = lag_matrix[new_order]
+        lag_matrix = lag_matrix[:, new_order]
+
+
         cluster_matrix = cluster_matrix[new_order]
         cluster_matrix = cluster_matrix[:, new_order]
         cluster_sampled_coords = cluster_sampled_coords[new_order]
@@ -183,6 +189,8 @@ class CausalClustering(object):
         n_cluster_list = n_cluster_list[cluster_order]
 
         response_msg = {
+            'corrMatrix': corr_matrix.tolist(),
+            'lagMatrix': lag_matrix.tolist(),
             'clusterMatrix': cluster_matrix.tolist(),
             'clusterSampledCoords': cluster_sampled_coords.tolist(),
             'nClusterList': n_cluster_list.tolist(),
