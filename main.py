@@ -2,8 +2,6 @@
 
 import falcon
 
-from causalapi import CausalInference
-from clusteringapi import Clustering
 
 class CORSMiddleware:
     def process_request(self, req, resp):
@@ -12,8 +10,6 @@ class CORSMiddleware:
 
 api = falcon.API(middleware=[CORSMiddleware()])
 
-api.add_route('/api/v1/causal', CausalInference())
-api.add_route('/api/v1/clustering', Clustering())
 
 if __name__ == "__main__":
     from wsgiref import simple_server
