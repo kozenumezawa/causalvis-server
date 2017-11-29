@@ -35,6 +35,7 @@ class CausalClustering(object):
                 else:
                     corr_list, lag_list = self.create_cross_matrix(body)
             elif data_name == DATA_SIM:
+                # corr_list, lag_list = self.create_cross_matrix(body)
                 f = open("./data/corr_list-" + data_name + '-3', "r")
                 corr_list = json.load(f)
                 f = open("./data/lag_list-" + data_name + '-3', "r")
@@ -65,6 +66,7 @@ class CausalClustering(object):
                 else:
                     response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
             elif data_name == DATA_SIM:
+                # response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
                 f = open("./data/clustermatrix-data_sim-3", "r")
                 response_msg = json.load(f)
             elif data_name == DATA_WILD:
