@@ -1,4 +1,4 @@
-def infinite_relational_model(causal_matrix, threshold, sampled_coords, data_name, window_size):
+def infinite_relational_model(corr_matrix, lag_matrix, threshold, sampled_coords, data_name, window_size):
     import numpy as np
     import math
     import json
@@ -17,7 +17,7 @@ def infinite_relational_model(causal_matrix, threshold, sampled_coords, data_nam
     graph = []
 
     # calculate graph
-    for row in causal_matrix:
+    for row in corr_matrix:
         graph_row = []
         for corr in row:
             if corr < threshold:
@@ -56,10 +56,18 @@ def infinite_relational_model(causal_matrix, threshold, sampled_coords, data_nam
     z = z[ordering]
     z = z[:,ordering]
 
+    corr_matrix = corr_matrix[ordering]
+    corr_matrix = corr_matrix[:,ordering]
+
+    lag_matrix = lag_matrix[ordering]
+    lag_matrix = lag_matrix[:,ordering]
+
     cluster_sampled_coords = np.array(sampled_coords)
     cluster_sampled_coords = cluster_sampled_coords[ordering]
 
     response_msg = {
+        'corrMatrix': corr_matrix.tolist(),
+        'lagMatrix': lag_matrix.tolist(),
         'clusterMatrix': z.tolist(),
         'clusterSampledCoords': cluster_sampled_coords.tolist(),
         'nClusterList': [len(cluster) for cluster in clusters],

@@ -5,14 +5,18 @@ def calc_all(all_time_series, max_lag, lag_step, data_name, window_size):
     import json
 
     corr_list = []
+    lag_list = []
 
     for (row_idx, x) in enumerate(all_time_series):
-        corr_list.append([0 for _ in range(len(all_time_series))])
+        print(row_idx)
+        row_corr = []
+        row_lag = []
 
-        for (col_idx, y) in enumerate(all_time_series):
+        for y in all_time_series:
             zero_lag_corr = np.corrcoef(x, y)[0][1]
             if math.isnan(zero_lag_corr):
-                corr_list[row_idx][col_idx] = 0
+                row_corr.append(0)
+                row_lag.append(0)
                 continue
 
             plus_lag_corr = []
@@ -26,21 +30,29 @@ def calc_all(all_time_series, max_lag, lag_step, data_name, window_size):
             max_idx = each_corr.index(max(each_corr))
 
             if max_idx == 0:
-                corr_list[row_idx][col_idx] = 0
+                # when y -> x
+                row_corr.append(0)
+                row_lag.append(0)
             elif max_idx == 1:
-                corr_list[row_idx][col_idx] = 0
+                row_corr.append(0)
+                row_lag.append(0)
             else:
-                corr_list[row_idx][col_idx] = max(each_corr)
+                # when x -> y
+                row_corr.append(max(each_corr))
+                row_lag.append(plus_lag_corr.index(max(plus_lag_corr)) + 1)
+        corr_list.append(row_corr)
+        lag_list.append(row_lag)
 
-    saveJSON = {
-        'causalMatrix': corr_list
-    }
-
-    f = open("./data/causalmatrix-" + data_name + '-' + str(window_size), "w")
-    json.dump(saveJSON, f)
+    f = open("./data/corr_list-" + data_name + '-' + str(window_size), "w")
+    json.dump(corr_list, f)
     f.close()
 
-    return corr_list
+    f = open("./data/lag_list-" + data_name + '-' + str(window_size), "w")
+    json.dump(lag_list, f)
+    f.close()
+
+
+    return (corr_list, lag_list)
 
 def is_sampling_point(idx, width, mean_step):
     import math
