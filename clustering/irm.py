@@ -29,10 +29,10 @@ def infinite_relational_model(corr_matrix, lag_matrix, threshold, sampled_coords
 
     graph = np.array(graph, dtype=np.bool)
 
-    GRAPH_SIZE = len(graph)
+    graph_size = len(graph)
 
     # conduct Infinite Relational Model
-    defn = model_definition([GRAPH_SIZE], [((0, 0), beta_bernoulli)])
+    defn = model_definition([graph_size], [((0, 0), beta_bernoulli)])
     views = [numpy_dataview(graph)]
     prng = rng()
 
@@ -46,7 +46,7 @@ def infinite_relational_model(corr_matrix, lag_matrix, threshold, sampled_coords
     # r.run(r=prng, niters=1000)
     # r.run(r=prng, niters=100)
     r.run(r=prng, niters=20)
-    print ("inference took", time.time() - start ,"seconds")
+    print ("inference took", time.time() - start, "seconds")
 
     infers = r.get_latents()
     clusters = groups(infers[0].assignments(0), sort=True)

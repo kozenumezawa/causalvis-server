@@ -50,9 +50,8 @@ def calc_all(all_time_series, max_lag, lag_step, data_name, window_size):
     f = open("./data/lag_list-" + data_name + '-' + str(window_size), "w")
     json.dump(lag_list, f)
     f.close()
-
-
     return (corr_list, lag_list)
+
 
 def is_sampling_point(idx, width, mean_step):
     import math

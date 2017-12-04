@@ -12,6 +12,7 @@ from constants import DATA_TRP3_RAW
 
 from clustering import irm
 
+
 class CausalClustering(object):
     def on_post(self, req, resp):
         body = json.loads(req.stream.read().decode('utf-8'))
@@ -51,7 +52,6 @@ class CausalClustering(object):
 
         corr_matrix = corr_list
         lag_matrix = lag_list
-
 
         # conduct clustering
         clustering_method = body['clusteringMethod']
@@ -101,7 +101,6 @@ class CausalClustering(object):
 
         corr_list, lag_list = allcrosscorr.calc_all(all_time_series,  max_lag, lag_step, data_name, window_size)
         return (corr_list, lag_list)
-
 
     @staticmethod
     def infinite_relational_model(body, corr_matrix, lag_matrix):
@@ -158,8 +157,8 @@ class CausalClustering(object):
 
         # count the number of source and target
         n_sources = [row.count(True) for row in adjacency_matrix]
-        adjacency_matrix_T = map(list, zip(*adjacency_matrix))
-        n_targets = [col.count(True) for col in adjacency_matrix_T]
+        adjacency_matrix_t = map(list, zip(*adjacency_matrix))
+        n_targets = [col.count(True) for col in adjacency_matrix_t]
 
         # calculate difference between nTargets and nSources
         n_diffs = [n_source - n_target for (n_source, n_target) in zip(n_sources, n_targets)]
@@ -182,7 +181,6 @@ class CausalClustering(object):
 
         lag_matrix = lag_matrix[new_order]
         lag_matrix = lag_matrix[:, new_order]
-
 
         cluster_matrix = cluster_matrix[new_order]
         cluster_matrix = cluster_matrix[:, new_order]
