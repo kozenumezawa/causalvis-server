@@ -34,7 +34,7 @@ def calc_all(all_time_series, max_lag, lag_step, data_name, window_size):
                 row_corr.append(0)
                 row_lag.append(0)
             elif max_idx == 1:
-                row_corr.append(0)
+                row_corr.append(max(each_corr))
                 row_lag.append(0)
             else:
                 # when x -> y
