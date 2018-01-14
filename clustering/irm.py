@@ -37,7 +37,8 @@ def infinite_relational_model(corr_matrix, lag_matrix, threshold, sampled_coords
     prng = rng()
 
     nchains = cpu_count()
-    latents = [model.initialize(defn, views, r=prng, cluster_hps=[{'alpha':1e-3}]) for _ in xrange(nchains)]
+    latents = [model.initialize(defn, views, r=prng, cluster_hps=[
+                                {'alpha': 1e-3}]) for _ in xrange(nchains)]
     kc = runner.default_assign_kernel_config(defn)
     runners = [runner.runner(defn, views, latent, kc) for latent in latents]
     r = parallel.runner(runners)
@@ -54,13 +55,13 @@ def infinite_relational_model(corr_matrix, lag_matrix, threshold, sampled_coords
 
     z = graph.copy()
     z = z[ordering]
-    z = z[:,ordering]
+    z = z[:, ordering]
 
     corr_matrix = corr_matrix[ordering]
-    corr_matrix = corr_matrix[:,ordering]
+    corr_matrix = corr_matrix[:, ordering]
 
     lag_matrix = lag_matrix[ordering]
-    lag_matrix = lag_matrix[:,ordering]
+    lag_matrix = lag_matrix[:, ordering]
 
     cluster_sampled_coords = np.array(sampled_coords)
     cluster_sampled_coords = cluster_sampled_coords[ordering]

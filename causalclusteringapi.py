@@ -5,6 +5,7 @@ import falcon
 import numpy as np
 
 from causalinference import allcrosscorr
+from causalinference import allccm
 from constants import DATA_SIM
 from constants import DATA_WILD
 from constants import DATA_TRP3
@@ -14,6 +15,7 @@ from clustering import irm
 
 
 class CausalClustering(object):
+
     def on_post(self, req, resp):
         body = json.loads(req.stream.read().decode('utf-8'))
 
@@ -29,9 +31,11 @@ class CausalClustering(object):
             window_size = body["windowSize"]
             if data_name == DATA_TRP3:
                 if window_size == 3 or window_size == 5 or window_size == 7:
-                    f = open("./data/corr_list-" + data_name + '-' + str(window_size), "r")
+                    f = open("./data/corr_list-" + data_name +
+                             '-' + str(window_size), "r")
                     corr_list = json.load(f)
-                    f = open("./data/lag_list-" + data_name + '-' + str(window_size), "r")
+                    f = open("./data/lag_list-" + data_name +
+                             '-' + str(window_size), "r")
                     lag_list = json.load(f)
                 else:
                     corr_list, lag_list = self.create_cross_matrix(body)
@@ -61,20 +65,26 @@ class CausalClustering(object):
             window_size = body["windowSize"]
             if data_name == DATA_TRP3:
                 if window_size == 3 or window_size == 5 or window_size == 7:
-                    f = open("./data/clustermatrix-" + data_name + '-' + str(window_size), "r")
+                    f = open("./data/clustermatrix-" + data_name +
+                             '-' + str(window_size), "r")
                     response_msg = json.load(f)
                 else:
-                    response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
+                    response_msg = self.infinite_relational_model(
+                        body, corr_matrix, lag_matrix)
             elif data_name == DATA_SIM:
-                # response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
-                f = open("./data/clustermatrix-data_sim-3", "r")
-                response_msg = json.load(f)
+                response_msg = self.infinite_relational_model(
+                    body, corr_matrix, lag_matrix)
+                #f = open("./data/clustermatrix-data_sim-3", "r")
+                #response_msg = json.load(f)
             elif data_name == DATA_WILD:
-                response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
+                response_msg = self.infinite_relational_model(
+                    body, corr_matrix, lag_matrix)
             elif data_name == DATA_TRP3_RAW:
-                response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
+                response_msg = self.infinite_relational_model(
+                    body, corr_matrix, lag_matrix)
             else:
-                response_msg = self.infinite_relational_model(body, corr_matrix, lag_matrix)
+                response_msg = self.infinite_relational_model(
+                    body, corr_matrix, lag_matrix)
             response_msg = self.sort(response_msg)
 
         else:
@@ -99,8 +109,21 @@ class CausalClustering(object):
         data_name = body['dataName']
         window_size = body['windowSize']
 
-        corr_list, lag_list = allcrosscorr.calc_all(all_time_series,  max_lag, lag_step, data_name, window_size)
+        corr_list, lag_list = allcrosscorr.calc_all(
+            all_time_series,  max_lag, lag_step, data_name, window_size)
         return (corr_list, lag_list)
+
+    @staticmethod
+    def create_ccm_matrix(body):
+        all_time_series = np.array(body['allTimeSeries'], dtype=np.float)
+        max_lag = body['maxLag']
+        lag_step = body['lagStep']
+        data_name = body['dataName']
+        window_size = body['windowSize']
+
+        ccm_list, lag_list = allccm.calc_all_ccm(
+            all_time_series,  max_lag, lag_step, data_name, window_size)
+        return (ccm_list, lag_list)
 
     @staticmethod
     def infinite_relational_model(body, corr_matrix, lag_matrix):
@@ -111,7 +134,8 @@ class CausalClustering(object):
         data_name = body['dataName']
         window_size = body['windowSize']
 
-        response_msg = irm.infinite_relational_model(corr_matrix, lag_matrix, threshold, sampled_coords, data_name, window_size)
+        response_msg = irm.infinite_relational_model(
+            corr_matrix, lag_matrix, threshold, sampled_coords, data_name, window_size)
         return response_msg
 
     @staticmethod
@@ -135,7 +159,8 @@ class CausalClustering(object):
 
         adjacency_matrix = []
         for causal_cluster_range in cluster_range_list:
-            height = causal_cluster_range['end'] - causal_cluster_range['start']
+            height = causal_cluster_range[
+                'end'] - causal_cluster_range['start']
             row = []
             for effect_cluster_range in cluster_range_list:
                 if effect_cluster_range == causal_cluster_range:
@@ -147,7 +172,8 @@ class CausalClustering(object):
                     for effect_idx in range(effect_cluster_range['start'], effect_cluster_range['end']):
                         if cluster_matrix[causal_idx][effect_idx] == True:
                             causal_cnt += 1
-                width = effect_cluster_range['end'] - effect_cluster_range['start']
+                width = effect_cluster_range[
+                    'end'] - effect_cluster_range['start']
                 area = width * height
                 if causal_cnt > area * 0.9:
                     row.append(True)
@@ -161,7 +187,8 @@ class CausalClustering(object):
         n_targets = [col.count(True) for col in adjacency_matrix_t]
 
         # calculate difference between nTargets and nSources
-        n_diffs = [n_source - n_target for (n_source, n_target) in zip(n_sources, n_targets)]
+        n_diffs = [
+            n_source - n_target for (n_source, n_target) in zip(n_sources, n_targets)]
         n_diffs = np.array(n_diffs)
 
         cluster_order = n_diffs.argsort()
@@ -197,4 +224,3 @@ class CausalClustering(object):
             'ordering': ordering.tolist(),
         }
         return response_msg
-
