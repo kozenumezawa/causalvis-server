@@ -19,53 +19,32 @@ def calc_all_ccm(all_time_series, max_lag, lag_step, data_name, window_size):
         sc1, sc2 = c.score()
         return sc1, sc2
 
-    ccm_list = []
-    lag_list = []
+    l = len(all_time_series)
+    print('start to ccm... data length: ', l)
+    ccm_list = [[1] * l for _ in range(l)]
 
-    for (row_idx, x) in enumerate(all_time_series):
-        print(row_idx)
-        row_ccm = []
-        row_lag = []
-
-        for y in all_time_series:
-            zero_lag_ccm = calculateCCM(x, y)[0]
-
-            plus_lag_ccm = []
-            minus_lag_ccm = []
-            for lag in range(lag_step, max_lag, lag_step):
-                # if corr(x, y[lag:]) > corr(x, y) : there is causality from x
-                # to y
-                plus_lag_ccm.append(
-                    calculateCCM(x[:len(x) - lag], y[lag:])[0])
-                minus_lag_ccm.append(
-                    calculateCCM(x[lag:], y[:len(y) - lag])[0])
-
-            each_ccm = [max(minus_lag_ccm), zero_lag_ccm,
-                        max(plus_lag_ccm)]
-            max_idx = each_ccm.index(max(each_ccm))
-
-            if max_idx == 0:
-                # when y -> x
-                row_ccm.append(0)
-                row_lag.append(0)
-            elif max_idx == 1:
-                row_ccm.append(0)
-                row_lag.append(0)
+    for xi, x in enumerate(all_time_series):
+        yi = xi + 1
+        while yi < l:
+            y = all_time_series[yi]
+            sc1, sc2 = calculateCCM(x, y)
+            if np.isnan(sc1[0]):
+                ccm_list[xi][yi] = 0
+                print('nan')
             else:
-                # when x -> y
-                row_ccm.append(max(each_ccm))
-                row_lag.append(plus_lag_ccm.index(max(plus_lag_ccm)) + 1)
-        ccm_list.append(row_ccm)
-        lag_list.append(row_lag)
+                ccm_list[xi][yi] = sc1[0]
+            if np.isnan(sc2[0]):
+                ccm_list[xi][yi] = 0
+                print('nan')
+            else:
+                ccm_list[yi][xi] = sc2[0]
+            yi += 1
 
     f = open("./data/ccm_list-" + data_name + '-' + str(window_size), "w")
     json.dump(ccm_list, f)
     f.close()
-
-    f = open("./data/lag_list-" + data_name + '-' + str(window_size), "w")
-    json.dump(lag_list, f)
-    f.close()
-    return (ccm_list, lag_list)
+    print('end ccm')
+    return ccm_list
 
 
 def is_sampling_point(idx, width, mean_step):

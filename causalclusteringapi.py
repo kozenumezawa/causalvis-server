@@ -26,7 +26,13 @@ class CausalClustering(object):
         if causal_method == 'GRANGER':
             corr_list = self.create_granger_matrix(body)
         elif causal_method == 'CCM':
-            print ('ccm')
+            # corr_list = self.create_ccm_matrix(body)
+            print('./data/ccm_list-' + data_name + '-3')
+            with open('./data/ccm_list-' + data_name + '-3', 'r') as f:
+                corr_list = json.load(f)
+            f = open("./data/lag_list-data_trp3"
+                     '-' + str(body["windowSize"]), "r")
+            lag_list = json.load(f)
         elif causal_method == 'CROSS':
             window_size = body["windowSize"]
             if data_name == DATA_TRP3:
@@ -64,13 +70,15 @@ class CausalClustering(object):
         if clustering_method == 'IRM':
             window_size = body["windowSize"]
             if data_name == DATA_TRP3:
-                if window_size == 3 or window_size == 5 or window_size == 7:
-                    f = open("./data/clustermatrix-" + data_name +
-                             '-' + str(window_size), "r")
-                    response_msg = json.load(f)
-                else:
-                    response_msg = self.infinite_relational_model(
-                        body, corr_matrix, lag_matrix)
+                response_msg = self.infinite_relational_model(
+                    body, corr_matrix, lag_matrix)
+                # if window_size == 3 or window_size == 5 or window_size == 7:
+                #     f = open("./data/clustermatrix-" + data_name +
+                #              '-' + str(window_size), "r")
+                #     response_msg = json.load(f)
+                # else:
+                #     response_msg = self.infinite_relational_model(
+                #         body, corr_matrix, lag_matrix)
             elif data_name == DATA_SIM:
                 response_msg = self.infinite_relational_model(
                     body, corr_matrix, lag_matrix)
@@ -121,9 +129,9 @@ class CausalClustering(object):
         data_name = body['dataName']
         window_size = body['windowSize']
 
-        ccm_list, lag_list = allccm.calc_all_ccm(
+        ccm_list = allccm.calc_all_ccm(
             all_time_series,  max_lag, lag_step, data_name, window_size)
-        return (ccm_list, lag_list)
+        return ccm_list
 
     @staticmethod
     def infinite_relational_model(body, corr_matrix, lag_matrix):
