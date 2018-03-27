@@ -10,7 +10,8 @@ from constants import DATA_WILD
 from constants import DATA_TRP3
 from constants import DATA_TRP3_RAW
 
-from clustering import irm
+# comment out a below line if clustering is needed
+# from clustering import irm
 
 
 class CausalClustering(object):
