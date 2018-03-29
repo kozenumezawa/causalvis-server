@@ -18,4 +18,7 @@ api.add_route('/api/v1/causal-and-clustering', CausalClustering())
 if __name__ == "__main__":
     from wsgiref import simple_server
     httpd = simple_server.make_server("127.0.0.1", 3000, api)
+
+    # open to an external server
+    # httpd = simple_server.make_server("0.0.0.0", 3000, api)
     httpd.serve_forever()
